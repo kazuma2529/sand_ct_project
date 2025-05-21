@@ -2,7 +2,7 @@ import os
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from torch.utils.data import DataLoader
+from torch.utils.data import DataLoader, random_split
 from tqdm import tqdm
 import matplotlib.pyplot as plt
 import sys
@@ -114,17 +114,22 @@ def main():
     # データセットとデータローダーの設定
     train_transform, val_transform = get_transforms()
     
-    train_dataset = ParticleDataset(
-        image_dir='data/train/images',
+    # images_enhancedフォルダを参照するように変更
+    full_dataset = ParticleDataset(
+        image_dir='data/train/images_enhanced',  # ここを変更
         mask_dir='data/train/masks',
         transform=train_transform
     )
     
-    val_dataset = ParticleDataset(
-        image_dir='data/val/images',
-        mask_dir='data/val/masks',
-        transform=val_transform
-    )
+    # 検証用データがない場合、学習データの一部を検証用に分割
+    # データが少ない場合はtrain:val = 7:3くらいの割合がよい
+    train_size = int(0.7 * len(full_dataset))
+    val_size = len(full_dataset) - train_size
+    
+    train_dataset, val_dataset = random_split(full_dataset, [train_size, val_size])
+    
+    print(f"学習データ数: {train_size}枚")
+    print(f"検証データ数: {val_size}枚")
     
     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=4)
     val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False, num_workers=4)
