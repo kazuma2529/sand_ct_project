@@ -20,4 +20,4 @@ for json_file in input_dir.glob("*.json"):
     cv2.imwrite(str(out_path), mask)
     print("✔", out_path)
 
-print("✅ すべてのマスク画像が生成されました！")
+print("✅ すべてのマスク画像が生成されましたよ！")
